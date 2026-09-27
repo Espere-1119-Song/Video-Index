@@ -1,0 +1,60 @@
+# Model roles. Copy to configs/models.yaml and edit; keys are read from the environment variables named in
+# api_key_env and never stored in this file.
+#
+# provider: openai_compatible  -> any OpenAI-style endpoint: OpenAI, or an open-weight model served by vLLM /
+#                                 SGLang / Ollama / LM Studio / TGI (start the server with an API key, e.g.
+#                                 `vllm serve Qwen/Qwen3-VL-8B-Instruct --api-key $VLLM_API_KEY --port 8000`)
+#           anthropic          -> Anthropic Messages API
+#           gemini             -> Google Gemini API
+# Roles left out fall back as documented in video_index/config.py (judge_b -> judge_a -> reference, ...).
+models:
+  reference:                      # reference accuracy s* at 32 frames
+    name: claude-opus-5
+    provider: anthropic
+    model: claude-opus-5
+    api_key_env: ANTHROPIC_API_KEY
+    max_frames: 600
+    image_long_side: 768
+
+  attacker:                       # diagnostic open-weight model (options-only, single frame, order probes, ladders)
+    name: qwen3-vl-8b
+    provider: openai_compatible
+    model: Qwen/Qwen3-VL-8B-Instruct
+    base_url: ${ATTACKER_BASE_URL:-http://127.0.0.1:8000/v1}
+    api_key_env: VLLM_API_KEY
+    max_frames: 128
+
+  attacker_small:                 # small model of the pool screen
+    name: qwen3-vl-2b
+    provider: openai_compatible
+    model: Qwen/Qwen3-VL-2B-Instruct
+    base_url: ${ATTACKER_SMALL_BASE_URL:-http://127.0.0.1:8001/v1}
+    api_key_env: VLLM_API_KEY
+    max_frames: 64
+
+  text_attacker:                  # blind and options-only reader
+    name: claude-opus-5
+    provider: anthropic
+    model: claude-opus-5
+    api_key_env: ANTHROPIC_API_KEY
+
+  captioner:
+    name: qwen3-vl-8b
+    provider: openai_compatible
+    model: Qwen/Qwen3-VL-8B-Instruct
+    base_url: ${ATTACKER_BASE_URL:-http://127.0.0.1:8000/v1}
+    api_key_env: VLLM_API_KEY
+
+  judge_a:                        # error attribution, first judge
+    name: claude-opus-5
+    provider: anthropic
+    model: claude-opus-5
+    api_key_env: ANTHROPIC_API_KEY
+
+  judge_b:                        # error attribution, second judge (a different model than judge_a)
+    name: gemini-3.5-flash
+    provider: gemini
+    model: gemini-3.5-flash
+    api_key_env: GEMINI_API_KEY
+
+  # labeler, verifier, caption_reader, reference_long: optional, see video_index/config.py

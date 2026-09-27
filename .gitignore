@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.egg-info/
+.env
+configs/models.yaml
+configs/*.local.yaml
+work/
+runs/
+data/
+*.mp4
+.DS_Store

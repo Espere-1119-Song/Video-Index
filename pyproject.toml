@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "video-index"
+version = "0.1.0"
+description = "Attack-pyramid audit of video benchmarks, onboarding of new benchmarks, and evaluation on Video-Index"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "Apache-2.0"}
+dependencies = ["numpy", "pandas", "pyyaml", "requests", "pillow", "opencv-python-headless", "tqdm", "scikit-learn", "huggingface_hub"]
+
+[project.optional-dependencies]
+embeddings = ["torch", "transformers", "sentence-transformers"]
+dev = ["pytest"]
+
+[project.scripts]
+vi-audit = "video_index.audit.cli:main"
+vi-onboard = "video_index.onboard.cli:main"
+vi-eval = "video_index.evaluate.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["video_index*"]

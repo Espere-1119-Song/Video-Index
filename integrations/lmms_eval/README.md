@@ -31,7 +31,7 @@ python -m lmms_eval --model <model> --tasks video_index,video_index_blind --batc
 | `video_index_blind` | question and options only, four option permutations per item |
 
 Metrics (percent): `video_index_acc`, `video_index_perception`, `video_index_temporal`, `video_index_spatial`,
-`video_index_reasoning`. Videos are downloaded one by one from `GMLRVigil/Video-Index`; `VIDEO_INDEX_DIR` points
+`video_index_reasoning`. Videos are downloaded one by one from `Video-Index/Video-Index`; `VIDEO_INDEX_DIR` points
 the task to a local copy.
 
 ## Differences from `vi-eval`

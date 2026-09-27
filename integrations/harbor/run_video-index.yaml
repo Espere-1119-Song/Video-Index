@@ -1,0 +1,23 @@
+# Reference configuration: run the Video-Index tasks with Harbor.
+#   python -m video_index_harbor.main --output-dir datasets/video-index
+#   harbor run -c run_video-index.yaml
+jobs_dir: jobs
+n_attempts: 1
+orchestrator:
+  type: local
+  n_concurrent_trials: 4
+environment:
+  type: docker
+  delete: true
+  env:
+    - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    - OPENAI_API_KEY=${OPENAI_API_KEY}
+    - GEMINI_API_KEY=${GEMINI_API_KEY}
+# Default: oracle (checks that every task's verifier accepts the marked answer)
+agents:
+  - name: oracle
+# agents:
+#   - name: claude-code
+#     model_name: anthropic/claude-opus-4-5
+datasets:
+  - path: datasets/video-index

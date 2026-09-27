@@ -1,42 +1,3 @@
-From de62185bd34a8a889d3eb315ae86d6d3b9f3c0a3 Mon Sep 17 00:00:00 2001
-From: Enxin Song <enxin.song.dut@gmail.com>
-Date: Sat, 26 Sep 2026 22:58:46 -0400
-Subject: [PATCH] feat: add Video-Index benchmark
-
-Video-Index holds 840 multiple-choice video questions from 76 public video
-benchmarks, one question per video, 210 per capability group.
-
-Tasks: video_index (video file), video_index_1fps / 64frame / 32frame /
-8frame (frames of the paper protocol passed as images) and
-video_index_blind (question and options only, four option permutations per
-item). Scoring is rule based; metrics are the overall accuracy and the
-accuracy per capability group.
-
-Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
----
- docs/advanced/current_tasks.md                |   4 +
- lmms_eval/tasks/video_index/README.md         |  75 +++++
- .../tasks/video_index/_default_template_yaml  |  31 ++
- lmms_eval/tasks/video_index/utils.py          | 312 ++++++++++++++++++
- lmms_eval/tasks/video_index/video_index.yaml  |   9 +
- .../tasks/video_index/video_index_1fps.yaml   |  12 +
- .../video_index/video_index_32frame.yaml      |  12 +
- .../video_index/video_index_64frame.yaml      |  12 +
- .../tasks/video_index/video_index_8frame.yaml |  12 +
- .../tasks/video_index/video_index_blind.yaml  |  10 +
- test/eval/test_video_index.py                 | 111 +++++++
- 11 files changed, 600 insertions(+)
- create mode 100644 lmms_eval/tasks/video_index/README.md
- create mode 100644 lmms_eval/tasks/video_index/_default_template_yaml
- create mode 100644 lmms_eval/tasks/video_index/utils.py
- create mode 100644 lmms_eval/tasks/video_index/video_index.yaml
- create mode 100644 lmms_eval/tasks/video_index/video_index_1fps.yaml
- create mode 100644 lmms_eval/tasks/video_index/video_index_32frame.yaml
- create mode 100644 lmms_eval/tasks/video_index/video_index_64frame.yaml
- create mode 100644 lmms_eval/tasks/video_index/video_index_8frame.yaml
- create mode 100644 lmms_eval/tasks/video_index/video_index_blind.yaml
- create mode 100644 test/eval/test_video_index.py
-
 diff --git a/docs/advanced/current_tasks.md b/docs/advanced/current_tasks.md
 index 214abed..e0c9ff8 100644
 --- a/docs/advanced/current_tasks.md
@@ -54,13 +15,13 @@ index 214abed..e0c9ff8 100644
  - [VideoEval-Pro](https://tiger-ai-lab.github.io/VideoEval-Pro/) (videoevalpro)
 diff --git a/lmms_eval/tasks/video_index/README.md b/lmms_eval/tasks/video_index/README.md
 new file mode 100644
-index 0000000..8d9df88
+index 0000000..eb39585
 --- /dev/null
 +++ b/lmms_eval/tasks/video_index/README.md
 @@ -0,0 +1,75 @@
 +# Video-Index
 +
-+[Video-Index](https://huggingface.co/datasets/GMLRVigil/Video-Index) holds 840 multiple-choice
++[Video-Index](https://huggingface.co/datasets/Video-Index/Video-Index) holds 840 multiple-choice
 +video questions drawn from 76 public video benchmarks: one question per video and 210 questions
 +in each of four capability groups (perception, temporal, spatial / physical, reasoning /
 +knowledge). Every item passed a screen with text-only, single-frame, options-only and
@@ -135,13 +96,12 @@ index 0000000..8d9df88
 +directly; models that reason before the reply need a larger value.
 diff --git a/lmms_eval/tasks/video_index/_default_template_yaml b/lmms_eval/tasks/video_index/_default_template_yaml
 new file mode 100644
-index 0000000..cf8d509
+index 0000000..b77dc5e
 --- /dev/null
 +++ b/lmms_eval/tasks/video_index/_default_template_yaml
-@@ -0,0 +1,31 @@
-+dataset_path: GMLRVigil/Video-Index
-+dataset_name: meta_benchmark
-+test_split: train
+@@ -0,0 +1,30 @@
++dataset_path: Video-Index/Video-Index
++test_split: test
 +output_type: generate_until
 +doc_to_target: !function utils.video_index_doc_to_target
 +generation_kwargs:
@@ -172,7 +132,7 @@ index 0000000..cf8d509
 +  - version: 0.0
 diff --git a/lmms_eval/tasks/video_index/utils.py b/lmms_eval/tasks/video_index/utils.py
 new file mode 100644
-index 0000000..2cf04e6
+index 0000000..52301a1
 --- /dev/null
 +++ b/lmms_eval/tasks/video_index/utils.py
 @@ -0,0 +1,312 @@
@@ -203,7 +163,7 @@ index 0000000..2cf04e6
 +
 +from lmms_eval.models.model_utils.load_video import import_decord
 +
-+HF_REPO_ID = "GMLRVigil/Video-Index"
++HF_REPO_ID = "Video-Index/Video-Index"
 +
 +LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 +ANSWER_INSTR = "Reply with ONLY the option letter (or the exact short answer if no options)."
@@ -708,6 +668,3 @@ index 0000000..eeb0438
 +    assert video_index_utils.video_index_aggregate_perception(records) == pytest.approx(100.0)
 +    assert video_index_utils.video_index_aggregate_temporal(records) == pytest.approx(25.0)
 +    assert np.isnan(video_index_utils.video_index_aggregate_spatial(records))
--- 
-2.43.0
-

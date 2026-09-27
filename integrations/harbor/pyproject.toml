@@ -1,0 +1,17 @@
+[project]
+name = "harbor-video-index-adapter"
+version = "0.1.0"
+description = "Harbor adapter for Video-Index"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["huggingface_hub"]
+
+[project.scripts]
+video-index-harbor = "video_index_harbor.main:main"
+
+[build-system]
+requires = ["hatchling>=1,<2"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/video_index_harbor"]

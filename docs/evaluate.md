@@ -11,13 +11,13 @@ the video (blind), the gain, and the accuracy per capability group. Three harnes
 
 ## 1. Data
 
-[`GMLRVigil/Video-Index`](https://huggingface.co/datasets/GMLRVigil/Video-Index) holds 840 multiple-choice items
+[`Video-Index/Video-Index`](https://huggingface.co/datasets/Video-Index/Video-Index) holds 840 multiple-choice items
 from 76 video benchmarks, one item per video, 210 items per capability group (`perception`, `temporal`,
 `spatial_physical`, `reasoning_knowledge`). Items have 2 to 10 options; the mean chance accuracy is 29.7%.
 
 | File | Content |
 |---|---|
-| `items/meta_benchmark.jsonl` | one item per line: `item_id`, `benchmark`, `capability_group`, `fine_category`, `question`, `options`, `answer`, `answer_idx`, `chance`, `video`, `video_id`, `duration_s`, `license` |
+| `items/test.jsonl` | one item per line: `item_id`, `benchmark`, `capability_group`, `fine_category`, `question`, `options`, `answer`, `answer_idx`, `chance`, `video`, `video_id`, `duration_s`, `license` |
 | `videos/<video_id>.mp4` | the video of the item, stored at no more than 2 frames per second and 1,024 frames |
 
 `--data` takes the hub id (default) or a local directory with the same layout. From the hub, the item file is
@@ -101,7 +101,7 @@ Options of `vi-eval run`:
 
 | Option | Default | Meaning |
 |---|---|---|
-| `--data` | `GMLRVigil/Video-Index` | hub id or local directory |
+| `--data` | `Video-Index/Video-Index` | hub id or local directory |
 | `--revision`, `--cache-dir` | | hub revision and cache directory |
 | `--model-config`, `--role` | `configs/models.yaml` | a configured role, a JSON object, or `key=value,key=value` (`provider`, `model`, `base_url`, `api_key_env`, `max_frames`, `max_tokens`, `temperature`, `timeout`, `max_retries`, `image_long_side`, `jpeg_quality`) |
 | `--local`, `--local-kwargs` | | `package.module:ClassName` of an in-process model and the JSON object passed to its constructor |
@@ -170,7 +170,7 @@ from video_index.evaluate import VideoIndex
 from video_index.evaluate.run import run_protocol
 from video_index.evaluate import score
 
-data = VideoIndex("GMLRVigil/Video-Index")
+data = VideoIndex("Video-Index/Video-Index")
 model = MyModel(checkpoint="...")
 for protocol in ("video", "blind"):
     run_protocol(model, data, protocol, "runs/my-model", workers=1)

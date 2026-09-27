@@ -3,7 +3,7 @@
 Code for auditing video benchmarks with the **attack pyramid** and for evaluating models on **Video-Index**,
 an 840-item benchmark composed from 76 public video benchmarks.
 
-- Dataset: [`GMLRVigil/Video-Index`](https://huggingface.co/datasets/GMLRVigil/Video-Index)
+- Dataset: [`Video-Index/Video-Index`](https://huggingface.co/datasets/Video-Index/Video-Index)
 - Paper: link to be added
 
 The repository holds three pipelines that share one library.
@@ -12,7 +12,7 @@ The repository holds three pipelines that share one library.
 |---|---|---|---|
 | 1. Audit | `vi-audit` | Rebuilds the study: samples benchmarks, runs the attack levels, assigns breaking levels, attributes errors, screens the item pool, composes Video-Index | [docs/audit.md](docs/audit.md), [attribution](docs/attribution.md), [pool](docs/pool.md), [compose](docs/compose.md) |
 | 2. Onboard | `vi-onboard` | Adds one new benchmark: adapter, format check, sample, videos, the audit stages for that benchmark, updated tables | [docs/onboard.md](docs/onboard.md) |
-| 3. Evaluate | `vi-eval` | Scores a model on Video-Index; also available inside VLMEvalKit and lmms-eval | [docs/evaluate.md](docs/evaluate.md) |
+| 3. Evaluate | `vi-eval` | Scores a model on Video-Index; also available inside VLMEvalKit and lmms-eval, and as Harbor tasks for agents | [docs/evaluate.md](docs/evaluate.md), [Harbor](integrations/harbor/README.md) |
 
 ## Install
 
@@ -86,7 +86,7 @@ vi-eval score --run runs/my-model
 
 Protocol: one frame per second, at most 512 frames, short side 224 pixels; the blind score is the mean over four
 option permutations; scoring is rule based. The same protocol is available in
-[VLMEvalKit](integrations/vlmevalkit/README.md) and [lmms-eval](integrations/lmms_eval/README.md).
+[VLMEvalKit](integrations/vlmevalkit/README.md) and [lmms-eval](integrations/lmms_eval/README.md); agents are evaluated with the [Harbor tasks](integrations/harbor/README.md).
 
 ## Layout
 

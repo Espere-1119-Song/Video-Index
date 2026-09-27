@@ -32,7 +32,7 @@ python run.py --data Video-Index_1fps Video-Index_Blind --model <model>
 | `Video-Index_64frame`, `Video-Index_32frame`, `Video-Index_8frame` | the same frame rule with a cap of 64, 32 or 8 frames |
 | `Video-Index_Blind` | question and options only, four option permutations per item |
 
-The item file and the videos are downloaded from `GMLRVigil/Video-Index` into `$LMUData/Video-Index`. The score
+The item file and the videos are downloaded from `Video-Index/Video-Index` into `$LMUData/Video-Index`. The score
 file (`*_score.json`) holds `Overall`, `Perception`, `Temporal`, `Spatial`, `Reasoning` (percent), `Items`,
 `Replies` and `Replies without an option`. Gain = `Overall` of a video dataset minus `Overall` of
 `Video-Index_Blind`.

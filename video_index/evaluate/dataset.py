@@ -1,12 +1,13 @@
-"""Loading Video-Index: from the Hugging Face hub (default ``GMLRVigil/Video-Index``) or from a local directory with
-the same layout (``items/meta_benchmark.jsonl`` and ``videos/<video_id>.mp4``)."""
+"""Loading Video-Index: from the Hugging Face hub (default ``Video-Index/Video-Index``) or from a local directory with
+the same layout (``items/test.jsonl`` and ``videos/<video_id>.mp4``; ``items/meta_benchmark.jsonl`` is read as well)."""
 from __future__ import annotations
 
 import json
 import os
 
-HUB_ID = "GMLRVigil/Video-Index"
-ITEMS_FILE = "items/meta_benchmark.jsonl"
+HUB_ID = "Video-Index/Video-Index"
+ITEMS_FILE = "items/test.jsonl"
+LEGACY_ITEMS_FILE = "items/meta_benchmark.jsonl"      # name of the item file in earlier exports
 
 
 class VideoIndex:
@@ -20,7 +21,12 @@ class VideoIndex:
         return hf_hub_download(self.data, filename, repo_type="dataset", revision=self.revision, cache_dir=self.cache_dir)
 
     def _load_items(self) -> list[dict]:
-        path = os.path.join(self.data, ITEMS_FILE) if self.local else self._hub(ITEMS_FILE)
+        if self.local:
+            path = os.path.join(self.data, ITEMS_FILE)
+            if not os.path.exists(path):
+                path = os.path.join(self.data, LEGACY_ITEMS_FILE)
+        else:
+            path = self._hub(ITEMS_FILE)
         items = []
         with open(path) as f:
             for line in f:

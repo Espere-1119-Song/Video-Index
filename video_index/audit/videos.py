@@ -41,7 +41,9 @@ def ffprobe(path, ffprobe_bin="ffprobe"):
     out = subprocess.run([ffprobe_bin, "-v", "error", "-print_format", "json", "-show_format", "-show_streams", path],
                          capture_output=True, text=True, check=True).stdout
     d = json.loads(out)
-    v = next(s for s in d["streams"] if s.get("codec_type") == "video")
+    v = next((s for s in d.get("streams", []) if s.get("codec_type") == "video"), None)
+    if v is None:
+        raise RuntimeError(f"no video stream in {os.path.basename(path)} (empty or single-frame source?)")
     num, den = (v.get("avg_frame_rate") or "0/1").split("/")
     rate = float(num) / float(den) if float(den or 0) else 0.0
     dur = float(d.get("format", {}).get("duration") or v.get("duration") or 0.0)

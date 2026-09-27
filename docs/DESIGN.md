@@ -41,9 +41,9 @@ a rerun skips finished rows (`video_index.data.schema.JsonlWriter`). `correct` i
 | Condition | Role | Input |
 |---|---|---|
 | `options_only` | text_attacker | options without the question |
-| `options_only_perm` | attacker | options-only under eight option permutations plus the original order |
+| `options_only_perm` | attacker | the 32-frame attacker condition under eight option permutations plus the original order (permutation audit of answer positions) |
 | `blind` | text_attacker | question and options |
-| `pool` | (learned) | logistic regression on question embeddings, five-fold held-out prediction within the benchmark |
+| `pool` | (learned) | learned attacker on question embeddings, prequential online training within the benchmark (50 orders); a five-fold variant is available |
 | `single_frame` | reference, attacker | the middle frame |
 | `captions` | caption_reader | captions written by the captioner |
 | `reference` | reference | 32 uniform frames, long side at most 768 |

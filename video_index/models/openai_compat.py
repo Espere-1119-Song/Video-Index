@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import requests
 
-from .base import ChatModel, ContextLimitError, ModelError, Reply
+from .base import ChatModel, ModelError, Reply, check_status
 
 
 class OpenAICompatible(ChatModel):
@@ -22,9 +22,7 @@ class OpenAICompatible(ChatModel):
         if key:
             headers["Authorization"] = f"Bearer {key}"
         r = requests.post(spec.base_url.rstrip("/") + "/chat/completions", json=body, headers=headers, timeout=spec.timeout)
-        if r.status_code == 400 or r.status_code == 413:
-            raise ContextLimitError(r.text[:300]) if _is_context(r.text) else ModelError(f"{spec.name}: HTTP {r.status_code}: {r.text[:300]}")
-        r.raise_for_status()
+        check_status(spec.name, r)
         d = r.json()
         ch = d["choices"][0]
         text = ch["message"].get("content") or ""
@@ -34,8 +32,3 @@ class OpenAICompatible(ChatModel):
         return Reply(text=text.strip(), stop_reason=ch.get("finish_reason"), input_tokens=u.get("prompt_tokens"),
                      output_tokens=u.get("completion_tokens"), raw=d)
 
-
-def _is_context(text: str) -> bool:
-    from .base import CONTEXT_PATTERNS
-    t = text.lower()
-    return any(p in t for p in CONTEXT_PATTERNS)

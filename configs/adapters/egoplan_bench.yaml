@@ -1,0 +1,16 @@
+# EgoPlan-Bench: one column per option, the gold is a letter, the video is named by an integer id.
+name: EgoPlan-Bench
+source:
+  annotations: {kind: hf, repo: EgoLife-v1/EgoPlan, include: ["egoplan/*.parquet"]}
+  videos: {kind: hf, repo: EgoLife-v1/EgoPlan}
+files: ["egoplan/validation-*.parquet"]
+fields:
+  question: question
+  option_fields: [choice_a, choice_b, choice_c, choice_d]
+  answer: golden_choice_idx
+  subtask: video_source
+  video: "{rearranged_id|int}.mp4"
+answer_type: letter
+filters:
+  - {field: is_valid, truthy: true}
+meta: {year: 2025, citation_key: chen2025egoplan, licence: unknown, capability_group: reasoning_knowledge}

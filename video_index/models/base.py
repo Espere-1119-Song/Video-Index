@@ -33,6 +33,10 @@ class RefusalError(ModelError):
     """The provider returned a refusal instead of an answer."""
 
 
+class RequestError(ModelError):
+    """The provider rejected the request for a reason a retry cannot fix (invalid key, unknown model, bad request)."""
+
+
 @dataclass
 class ModelSpec:
     """One model as written in ``configs/models.yaml``."""
@@ -67,6 +71,18 @@ class Reply:
     output_tokens: int | None = None
     n_images: int = 0
     raw: dict | None = None
+
+
+def check_status(name: str, r) -> None:
+    """Shared HTTP status handling of the providers: context errors, permanent errors, transient errors."""
+    if r.status_code < 400:
+        return
+    text = r.text[:300]
+    if r.status_code in (400, 413, 422) and any(p in r.text.lower() for p in CONTEXT_PATTERNS):
+        raise ContextLimitError(text)
+    if r.status_code in (400, 401, 403, 404, 422):
+        raise RequestError(f"{name}: HTTP {r.status_code}: {text}")
+    r.raise_for_status()                       # 408, 429, 5xx: transient, retried with backoff
 
 
 def encode_image(img, long_side: int | None = None, quality: int = 85) -> str:
@@ -108,7 +124,7 @@ class ChatModel(abc.ABC):
         exception for a transient failure (the caller retries with backoff)."""
 
     def retryable(self, exc: Exception) -> bool:
-        return not isinstance(exc, (ContextLimitError, RefusalError))
+        return not isinstance(exc, (ContextLimitError, RefusalError, RequestError))
 
     def generate(self, prompt: str, images: Sequence = (), system: str | None = None,
                  max_tokens: int | None = None, temperature: float | None = None) -> Reply:

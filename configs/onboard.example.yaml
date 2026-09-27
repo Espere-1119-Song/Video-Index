@@ -1,0 +1,13 @@
+# Run configuration of `vi-onboard` (copy to configs/onboard.yaml). The same keys as the audit configuration:
+# the onboarding pipeline runs the audit stages for one benchmark.
+work_dir: work                       # workspace (docs/DESIGN.md)
+models_file: configs/models.yaml     # model roles; keys come from environment variables
+seed: 42
+sample_n: 300                        # audited sample per benchmark (all items when fewer)
+delta: 0.05                          # margin of the breaking levels
+workers: 8
+
+# watcher (vi-onboard watch): keywords searched on the Hugging Face hub and on arXiv
+watch:
+  keywords: ["video benchmark", "video question answering benchmark", "video understanding benchmark"]
+  days: 30

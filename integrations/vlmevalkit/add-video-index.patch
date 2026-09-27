@@ -1,0 +1,652 @@
+From 5cd3e155d590e33b42e18906a1a7b398a2e35fea Mon Sep 17 00:00:00 2001
+From: Enxin Song <enxin.song.dut@gmail.com>
+Date: Sat, 26 Sep 2026 23:04:40 -0400
+Subject: [PATCH] [Benchmark] Add Video-Index benchmark
+
+Video-Index holds 840 multiple-choice video questions from 76 public video
+benchmarks, one question per video, 210 per capability group.
+
+Datasets: Video-Index_1fps (1 frame per second, at most 512 frames, short
+side 224), Video-Index_8frame / 32frame / 64frame (the same frame rule with
+a lower cap) and Video-Index_Blind (question and options only, four option
+permutations per item). Scoring is rule based; the score file holds the
+overall accuracy and the accuracy per capability group.
+
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
+---
+ .../predefined_video_shortcuts_manifest.json  |  53 ++++
+ tests/test_video_index.py                     |  98 +++++++
+ vlmeval/dataset/__init__.py                   |   4 +-
+ vlmeval/dataset/utils/video_index.py          | 135 +++++++++
+ vlmeval/dataset/video_dataset_config.py       |  10 +-
+ vlmeval/dataset/video_index.py                | 258 ++++++++++++++++++
+ 6 files changed, 556 insertions(+), 2 deletions(-)
+ create mode 100644 tests/test_video_index.py
+ create mode 100644 vlmeval/dataset/utils/video_index.py
+ create mode 100644 vlmeval/dataset/video_index.py
+
+diff --git a/tests/fixtures/predefined_video_shortcuts_manifest.json b/tests/fixtures/predefined_video_shortcuts_manifest.json
+index 5acebc5..7c16b95 100644
+--- a/tests/fixtures/predefined_video_shortcuts_manifest.json
++++ b/tests/fixtures/predefined_video_shortcuts_manifest.json
+@@ -2396,5 +2396,58 @@
+     "dataset_alias_name": "revsi_all_frame",
+     "dataset_class_name": "ReVSI",
+     "dataset_name": "ReVSI"
++  },
++  "Video-Index_1fps": {
++    "build_config": {
++      "class": "VideoIndex",
++      "dataset": "Video-Index",
++      "fps": 1.0,
++      "max_frames": 512
++    },
++    "dataset_alias_name": "Video-Index_1fps",
++    "dataset_class_name": "VideoIndex",
++    "dataset_name": "Video-Index"
++  },
++  "Video-Index_8frame": {
++    "build_config": {
++      "class": "VideoIndex",
++      "dataset": "Video-Index",
++      "fps": -1,
++      "nframe": 8
++    },
++    "dataset_alias_name": "Video-Index_8frame",
++    "dataset_class_name": "VideoIndex",
++    "dataset_name": "Video-Index"
++  },
++  "Video-Index_32frame": {
++    "build_config": {
++      "class": "VideoIndex",
++      "dataset": "Video-Index",
++      "fps": -1,
++      "nframe": 32
++    },
++    "dataset_alias_name": "Video-Index_32frame",
++    "dataset_class_name": "VideoIndex",
++    "dataset_name": "Video-Index"
++  },
++  "Video-Index_64frame": {
++    "build_config": {
++      "class": "VideoIndex",
++      "dataset": "Video-Index",
++      "fps": -1,
++      "nframe": 64
++    },
++    "dataset_alias_name": "Video-Index_64frame",
++    "dataset_class_name": "VideoIndex",
++    "dataset_name": "Video-Index"
++  },
++  "Video-Index_Blind": {
++    "build_config": {
++      "class": "VideoIndex",
++      "dataset": "Video-Index_Blind"
++    },
++    "dataset_alias_name": "Video-Index_Blind",
++    "dataset_class_name": "VideoIndex",
++    "dataset_name": "Video-Index_Blind"
+   }
+ }
+diff --git a/tests/test_video_index.py b/tests/test_video_index.py
+new file mode 100644
+index 0000000..c20c481
+--- /dev/null
++++ b/tests/test_video_index.py
+@@ -0,0 +1,98 @@
++import random
++
++import pandas as pd
++
++from vlmeval.dataset import video_index
++from vlmeval.dataset.utils import video_index as vi
++from vlmeval.dataset.video_index import VideoIndex
++
++OPTIONS = ['a red cup', 'a knife', 'the phone']
++
++
++def test_video_index_reply_parsing():
++    assert vi.extract_letter('B', OPTIONS) == 'B'
++    assert vi.extract_letter('(c) the phone', OPTIONS) == 'C'
++    assert vi.extract_letter('The answer is B.', OPTIONS) == 'B'
++    assert vi.extract_letter('The answer is A. Wait, the answer is C', OPTIONS) == 'C'
++    assert vi.extract_letter('the phone', OPTIONS) == 'C'
++    assert vi.extract_letter('A person picks up the phone', OPTIONS) == 'C'
++    assert vi.extract_letter('I cannot tell', OPTIONS) is None
++    assert vi.extract_letter('', OPTIONS) is None
++    assert vi.score_reply('C', 'C', OPTIONS) == 1.0
++    assert vi.score_reply('I cannot tell', 'C', OPTIONS) == 0.0
++
++
++def test_video_index_permutations_are_fixed_per_item():
++    perms = vi.permutations_for('Demo_1', 4)
++    rng = random.Random('42|Demo_1')
++    assert perms == [rng.sample(range(4), 4) for _ in range(4)]
++    assert all(sorted(perm) == [0, 1, 2, 3] for perm in perms)
++
++
++def test_video_index_frame_rule():
++    assert vi.one_fps_indices(40, 2.0, 20.0) == list(range(0, 40, 2))
++    assert vi.one_fps_indices(10, 0.5, 20.0) == list(range(10))
++    indices = vi.one_fps_indices(2000, 2.0, 1000.0, cap=512)
++    assert len(indices) == 512 and indices[0] == 0 and indices[-1] == 1998
++    assert len(vi.one_fps_indices(40, 2.0, 20.0, cap=8)) == 8
++
++
++def test_video_index_blind_rows_are_averaged_per_item(monkeypatch):
++    groups = ['perception', 'temporal']
++    rows = []
++    for item in range(2):
++        for perm_idx, perm in enumerate(vi.permutations_for(f'Demo_{item}', 3)):
++            answer = vi.LETTERS[perm.index(2)]
++            # item 0: every reply names the marked option; item 1: one reply of four does
++            correct = item == 0 or perm_idx == 0
++            rows.append({
++                'index': len(rows),
++                'item_id': f'Demo_{item}',
++                'capability_group': groups[item],
++                'candidates': repr([OPTIONS[j] for j in perm]),
++                'answer': answer,
++                'prediction': answer if correct else 'I cannot tell',
++            })
++    dumped = {}
++    monkeypatch.setattr(video_index, 'load', lambda _path: pd.DataFrame(rows))
++    monkeypatch.setattr(video_index, 'dump', lambda data, path: dumped.update({path: data}))
++    monkeypatch.setattr(video_index, 'get_intermediate_file_path', lambda path, suffix, _ext=None: f'{path}{suffix}')
++
++    dataset = VideoIndex.__new__(VideoIndex)
++    rating = dataset.evaluate('pred.xlsx')
++
++    assert rating['Overall'] == 62.5
++    assert rating['Perception'] == 100.0 and rating['Temporal'] == 25.0
++    assert 'Spatial' not in rating
++    assert rating['Items'] == 2 and rating['Replies'] == 8 and rating['Replies without an option'] == 3
++    assert VideoIndex.report_primary_metric(rating) == {'Overall': 62.5}
++
++
++class _Frame:
++
++    def __init__(self, value):
++        self.value = value
++
++    def asnumpy(self):
++        return self.value
++
++
++class _Reader:
++    """Stands for a decord VideoReader; counts the frames decoded in stream order."""
++
++    def __init__(self):
++        self.position = None
++
++    def seek(self, position):
++        self.position = position
++
++    def next(self):
++        self.position += 1
++        return _Frame(self.position - 1)
++
++
++def test_video_index_frames_are_decoded_in_stream_order():
++    reader = _Reader()
++    assert vi.read_frames(reader, [0, 3, 7]) == [0, 3, 7]
++    assert reader.position == 8
++    assert vi.read_frames(reader, []) == []
+diff --git a/vlmeval/dataset/__init__.py b/vlmeval/dataset/__init__.py
+index f54c8e6..c5ef881 100644
+--- a/vlmeval/dataset/__init__.py
++++ b/vlmeval/dataset/__init__.py
+@@ -160,6 +160,7 @@ from .vdc import VDC
+ from .video_concat_dataset import ConcatVideoDataset
+ from .video_eval_pro import VideoEvalPro_MCQ, VideoEvalPro_OpenEnded
+ from .video_holmes import Video_Holmes
++from .video_index import VideoIndex
+ from .video_mmlu import Video_MMLU_CAP, Video_MMLU_QA
+ from .videomme import VideoMME
+ from .videommev2 import VideoMMEv2
+@@ -351,7 +352,8 @@ VIDEO_DATASET = [
+     Video_MMLU_CAP, Video_MMLU_QA,
+     Video_Holmes, VCRBench, CGAVCounting,
+     EgoExoBench_MCQ, DREAM, VideoTT, VideoMMMU, MVUEval, OMTGBench, V2PBench, AVSpeakerBench,
+-    VideoMMEv2, ReVSI, SISBench, VideoEvalPro_MCQ, VideoEvalPro_OpenEnded, VRBenchDataset, FavorBench
++    VideoMMEv2, ReVSI, SISBench, VideoEvalPro_MCQ, VideoEvalPro_OpenEnded, VRBenchDataset, FavorBench,
++    VideoIndex
+ ]
+ 
+ # add by EASI team
+diff --git a/vlmeval/dataset/utils/video_index.py b/vlmeval/dataset/utils/video_index.py
+new file mode 100644
+index 0000000..b065afd
+--- /dev/null
++++ b/vlmeval/dataset/utils/video_index.py
+@@ -0,0 +1,135 @@
++"""Helpers of the Video-Index benchmark: prompts, option permutations of the blind protocol,
++the frame rule of the video protocol and the rule scorer (no judge model)."""
++import random
++import re
++
++import numpy as np
++
++LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
++ANSWER_INSTR = 'Reply with ONLY the option letter (or the exact short answer if no options).'
++PROMPT = '{intro}\n\nQuestion: {q}\n{opts}\n' + ANSWER_INSTR
++INTRO_FRAMES = 'You are given {n} frame(s) sampled from a video. Answer the question based on these frames.'
++INTRO_VIDEO = 'You are given a video. Answer the question based on this video.'
++INTRO_BLIND = 'You are given NO frames from the video. Answer the question from the text alone.'
++GROUPS = [
++    ('perception', 'Perception'),
++    ('temporal', 'Temporal'),
++    ('spatial_physical', 'Spatial'),
++    ('reasoning_knowledge', 'Reasoning'),
++]
++N_PERM, PERM_SEED = 4, 42
++
++# leading option letter: "B", "(B)", "B.", "B) text", "[b]", "b: text"
++_LEAD = re.compile(r'^\s*[\(\[]?([A-Ja-j])[\)\]\.,:]?(?:\s|$)')
++# "answer is (B)" / "Answer: B." / "option B": the last occurrence wins
++_STATED = re.compile(
++    r'(?:answer|option|choice)\s*(?:is|would\s+be)?\s*[:\-]?\s*[\(\[]?([A-Ja-j])[\)\]\.,:]?(?:\s|$)',
++    re.IGNORECASE,
++)
++_STATED_CN = re.compile(r'答案\s*(?:是|为)?\s*[:：]?\s*[\(\[]?([A-Ja-j])(?![A-Za-z])')
++
++
++def permutations_for(item_id, k, n_perm=N_PERM, seed=PERM_SEED):
++    """Option orders of the blind protocol: perm[j] is the index of the original option shown at position j."""
++    rng = random.Random(f'{seed}|{item_id}')
++    return [rng.sample(range(k), k) for _ in range(n_perm)]
++
++
++def render_options(texts):
++    return '\n'.join(f'{LETTERS[i]}. {t}' for i, t in enumerate(texts))
++
++
++def _pre(s):
++    s = str(s)
++    s = s.replace('（', '(').replace('）', ')').replace('：', ':')
++    s = s.replace('。', '.').replace('，', ',')
++    return s.replace('*', '').replace('#', '')
++
++
++def _norm_text(s):
++    s = str(s).strip().lower()
++    s = re.sub(r'[‘’“”`]', "'", s)
++    s = re.sub(r'[^\w\s.\-]', ' ', s)
++    s = re.sub(r'\s+', ' ', s).strip()
++    return s.strip('.').strip()
++
++
++def _flat(t):
++    return re.sub(r'\s+', ' ', re.sub(r'[.\-]', ' ', t)).strip()
++
++
++def extract_letter(reply, options):
++    """Option letter named by a reply, or None. Order: the leading letter, a stated answer
++    ("the answer is B"), the option whose text the reply repeats. `options` are the option
++    texts in the order shown to the model (at most ten)."""
++    if reply is None:
++        return None
++    s = _pre(reply).strip()
++    m = _LEAD.match(s)
++    if m:
++        letter = m.group(1).upper()
++        # a bare "A" / "I" followed by more words is usually the article or the pronoun
++        has_delim = any(ch in m.group(0) for ch in '()[].,:')
++        if has_delim or letter not in ('A', 'I') or len(s.split()) == 1:
++            return letter
++    ms = list(_STATED.finditer(s)) or list(_STATED_CN.finditer(s))
++    if ms:
++        return ms[-1].group(1).upper()
++    ns = _norm_text(s)
++    lettered = [f'{LETTERS[i]}. {t}' for i, t in enumerate(options)]
++    for i, opt in enumerate(options):
++        if ns and ns in (_norm_text(lettered[i]), _norm_text(opt)):
++            return LETTERS[i]
++    nsf = _flat(ns)
++    hits = []
++    for i, opt in enumerate(options):
++        ot = _flat(_norm_text(opt))
++        if ot and len(ot) >= 3 and f' {ot} ' in f' {nsf} ':
++            hits.append(i)
++    if len(hits) == 1:
++        return LETTERS[hits[0]]
++    if re.fullmatch(r'\d{1,2}', s) and int(s) < len(options):
++        return LETTERS[int(s)]
++    return None
++
++
++def score_reply(reply, gold, options):
++    """1.0 when the reply names the gold option, else 0.0. A reply that names no option is wrong."""
++    letter = extract_letter(reply, options)
++    return float(letter is not None and letter == str(gold).strip().upper())
++
++
++def one_fps_indices(n_frames, native_fps, duration, rate=1.0, cap=512):
++    """Indices of the stored frames that are sent: the stored frame nearest to every multiple of
++    1 / rate seconds of the timeline [0, duration); every stored frame when the video is stored
++    below the rate; uniform thinning to at most `cap` frames."""
++    if n_frames <= 0:
++        return []
++    native = native_fps or 2.0
++    ts = np.arange(n_frames, dtype=np.float64) / native
++    dur = float(duration) if duration and duration == duration else float(ts[-1] + 0.5)
++    if n_frames <= dur * rate + 1:
++        idx = list(range(n_frames))
++    else:
++        targets = np.arange(0.0, max(dur, 0.5 / rate), 1.0 / rate)
++        idx = sorted(set(int(np.abs(ts - t).argmin()) for t in targets))
++    if cap and len(idx) > cap:
++        keep = sorted(set(int(round(x)) for x in np.linspace(0, len(idx) - 1, cap)))
++        idx = [idx[i] for i in keep]
++    return idx
++
++
++def read_frames(reader, indices):
++    """Frames (numpy arrays, RGB) at the given indices of a decord VideoReader, decoded in stream order.
++    Random access returns a neighbouring frame on some of the videos; the videos hold at most 1,024
++    stored frames, so decoding from the first frame is affordable."""
++    wanted = set(int(i) for i in indices)
++    if not wanted:
++        return []
++    frames = {}
++    reader.seek(0)
++    for i in range(max(wanted) + 1):
++        frame = reader.next()
++        if i in wanted:
++            frames[i] = frame.asnumpy()
++    return [frames[int(i)] for i in indices]
+diff --git a/vlmeval/dataset/video_dataset_config.py b/vlmeval/dataset/video_dataset_config.py
+index 90a5031..3e5e6ae 100644
+--- a/vlmeval/dataset/video_dataset_config.py
++++ b/vlmeval/dataset/video_dataset_config.py
+@@ -436,6 +436,14 @@ vrbench_dataset = {
+     'VRBench_64frame': _video_spec(VRBenchDataset, dataset='VRBench', nframe=64),
+ }
+ 
++video_index_dataset = {
++    'Video-Index_1fps': _video_spec(VideoIndex, dataset='Video-Index', fps=1.0, max_frames=512),
++    'Video-Index_8frame': _video_spec(VideoIndex, dataset='Video-Index', nframe=8, fps=-1),
++    'Video-Index_32frame': _video_spec(VideoIndex, dataset='Video-Index', nframe=32, fps=-1),
++    'Video-Index_64frame': _video_spec(VideoIndex, dataset='Video-Index', nframe=64, fps=-1),
++    'Video-Index_Blind': _video_spec(VideoIndex, dataset='Video-Index_Blind'),
++}
++
+ favor_bench_dataset = {
+     'FAVOR-Bench_8frame': _video_spec(FavorBench, dataset='FAVOR-Bench', nframe=8, fps=-1),
+     'FAVOR-Bench_16frame': _video_spec(FavorBench, dataset='FAVOR-Bench', nframe=16, fps=-1),
+@@ -452,7 +460,7 @@ dataset_groups = [
+     megabench_dataset, qbench_video_dataset, moviechat1k_dataset, vdc_dataset, video_holmes_dataset, vcrbench_dataset,
+     cg_av_counting_dataset, video_mmlu_dataset, egoexobench_dataset, dream_1k_dataset, video_tt_dataset,
+     video_vsi_dataset, mvu_eval_dataset, omtg_dataset, v2pbench_dataset, av_speakerbench_dataset,
+-    favor_bench_dataset
++    favor_bench_dataset, video_index_dataset
+ ]
+ 
+ # add by EASI team
+diff --git a/vlmeval/dataset/video_index.py b/vlmeval/dataset/video_index.py
+new file mode 100644
+index 0000000..b45b9c5
+--- /dev/null
++++ b/vlmeval/dataset/video_index.py
+@@ -0,0 +1,258 @@
++import ast
++import json
++import os
++import os.path as osp
++from pathlib import Path
++
++import numpy as np
++import pandas as pd
++import portalocker
++from PIL import Image
++
++from vlmeval.smp import dump, get_intermediate_file_path, load
++from vlmeval.smp.file import LMUDataRoot
++from .utils import video_index as vi
++from .video_base import VideoBaseDataset
++
++
++class VideoIndex(VideoBaseDataset):
++    """Video-Index: 840 multiple-choice video questions from 76 public video benchmarks, one question
++    per video, 210 per capability group (perception, temporal, spatial / physical, reasoning /
++    knowledge). Every item passed a screen with text-only, single-frame, options-only and
++    shuffled-frame attackers, and its marked answer was verified against the frames.
++
++    Two protocols:
++
++    * video (`Video-Index`): one frame per second of the timeline, at most `max_frames` frames
++      (512; uniform thinning beyond), every frame resized to a short side of `short_side` pixels
++      (224). `nframe=N` keeps the same frame rule with a cap of N frames. Models that read video
++      files (`VIDEO_LLM`) receive the file instead of the frames.
++    * blind (`Video-Index_Blind`): the question and the options only, under four option
++      permutations per item; the blind score is the mean over the permutations.
++
++    Scoring is rule based (leading option letter, stated answer, or the option text that the reply
++    repeats); no judge model is involved. Gain = video accuracy - blind accuracy.
++
++    `limit` and `offset` (counted in items, in the order of the item file) select a slice for
++    smoke tests; only the videos of the slice are downloaded.
++    """
++
++    TYPE = 'Video-MCQ'
++    DEFAULT_JUDGE_MODEL = None
++    HF_REPO_ID = 'GMLRVigil/Video-Index'
++    ITEMS_FILENAME = 'items/meta_benchmark.jsonl'
++    N_ITEMS = 840
++
++    @classmethod
++    def supported_datasets(cls):
++        return ['Video-Index', 'Video-Index_Blind']
++
++    @classmethod
++    def validate_build_config(cls, config: dict) -> None:
++        if 'blind' in str(config.get('dataset', '')).lower():
++            return
++        super().validate_build_config(config)
++
++    def __init__(self,
++                 dataset='Video-Index',
++                 pack=False,
++                 nframe=0,
++                 fps=1.0,
++                 max_frames=512,
++                 short_side=224,
++                 limit=None,
++                 offset=0):
++        self.blind = 'blind' in dataset.lower()
++        self.max_frames = max_frames
++        self.short_side = short_side
++        self.limit = int(limit) if limit else None
++        self.offset = int(offset or 0)
++        if self.blind:
++            nframe, fps = 0, -1
++        super().__init__(dataset=dataset, pack=pack, nframe=nframe, fps=fps)
++        self.data = self._slice(self.data)
++        self.videos = sorted(set(self.data['video']))
++
++    def _slice(self, data):
++        if self.limit is None and not self.offset:
++            return data
++        item_ids = list(dict.fromkeys(data['item_id']))
++        stop = None if self.limit is None else self.offset + self.limit
++        keep = set(item_ids[self.offset:stop])
++        return data[data['item_id'].isin(keep)].reset_index(drop=True)
++
++    # ------------------------------------------------------------------ data
++    @classmethod
++    def _items_file(cls, bench_root):
++        path = bench_root / cls.ITEMS_FILENAME
++        if path.exists():
++            return path
++        from huggingface_hub import hf_hub_download
++        return Path(
++            hf_hub_download(repo_id=cls.HF_REPO_ID,
++                            repo_type='dataset',
++                            filename=cls.ITEMS_FILENAME,
++                            local_dir=str(bench_root)))
++
++    @staticmethod
++    def _read_items(items_file):
++        with open(items_file, 'r', encoding='utf-8') as f:
++            return [json.loads(line) for line in f if line.strip()]
++
++    @classmethod
++    def _build_tsv(cls, items_file, data_file, blind):
++        records = []
++        for item in cls._read_items(items_file):
++            options = [str(o) for o in item['options']]
++            answer_idx = int(item['answer_idx'])
++            if blind:
++                perms = vi.permutations_for(item['item_id'], len(options))
++            else:
++                perms = [list(range(len(options)))]
++            for perm_idx, perm in enumerate(perms):
++                records.append({
++                    'index': len(records),
++                    'item_id': item['item_id'],
++                    'video': item['video_id'],
++                    'video_path': item['video'],
++                    'question': item['question'],
++                    'candidates': repr([options[j] for j in perm]),
++                    'answer': vi.LETTERS[perm.index(answer_idx)],
++                    'perm': repr(perm),
++                    'perm_idx': perm_idx,
++                    'benchmark': item['benchmark'],
++                    'capability_group': item['capability_group'],
++                    'fine_category': item.get('fine_category', ''),
++                    'duration': item.get('duration_s', ''),
++                })
++        dump(pd.DataFrame(records), str(data_file))
++
++    def _missing_videos(self, bench_root, data_file):
++        data = self._slice(load(str(data_file)))
++        return sorted(p for p in set(data['video_path']) if not (bench_root / p).exists())
++
++    @classmethod
++    def _download_videos(cls, bench_root, missing):
++        from huggingface_hub import snapshot_download
++        snapshot_download(repo_id=cls.HF_REPO_ID,
++                          repo_type='dataset',
++                          allow_patterns=list(missing),
++                          local_dir=str(bench_root))
++
++    def prepare_dataset(self, dataset):
++        blind = 'blind' in dataset.lower()
++        bench_root = Path(LMUDataRoot()) / 'Video-Index'
++        bench_root.mkdir(parents=True, exist_ok=True)
++        items_file = self._items_file(bench_root)
++        data_file = bench_root / f'{dataset}.tsv'
++        if not data_file.exists() or items_file.stat().st_mtime > data_file.stat().st_mtime:
++            self._build_tsv(items_file, data_file, blind)
++        if not blind:
++            missing = self._missing_videos(bench_root, data_file)
++            if missing:
++                self._download_videos(bench_root, missing)
++            missing = self._missing_videos(bench_root, data_file)
++            if missing:
++                raise FileNotFoundError(
++                    f'{len(missing)} Video-Index videos are missing under {bench_root} (first: {missing[0]}). '
++                    f'Download https://huggingface.co/datasets/{self.HF_REPO_ID} into that directory.')
++        return dict(root=str(bench_root), data_file=str(data_file))
++
++    # ---------------------------------------------------------------- frames
++    def _video_file(self, line):
++        return osp.join(self.data_root, line['video_path'])
++
++    def save_video_frames(self, line):
++        """Frames of the video protocol for one item, written once as JPEG files."""
++        import decord
++        vid_path = self._video_file(line)
++        vid = decord.VideoReader(vid_path)
++        duration = line['duration']
++        duration = float(duration) if str(duration) not in ('', 'nan') else None
++        if self.fps > 0:
++            rate, cap, tag = self.fps, self.max_frames, f'{self.fps:g}fps-cap{self.max_frames}'
++        else:
++            rate, cap, tag = 1.0, self.nframe, f'1fps-cap{self.nframe}'
++        indices = vi.one_fps_indices(len(vid), vid.get_avg_fps(), duration, rate=rate, cap=cap)
++        frame_root = osp.join(self.frame_root, str(line['video']))
++        os.makedirs(frame_root, exist_ok=True)
++        n = len(indices)
++        frame_paths = [osp.join(frame_root, f'frame-{i}-of-{n}-{tag}-s{self.short_side}.jpg') for i in range(1, n + 1)]
++        if np.all([osp.exists(p) for p in frame_paths]):
++            return frame_paths
++        lock_path = osp.join(self.frame_root, str(line['video']) + '.lock')
++        with portalocker.Lock(lock_path, 'w', timeout=30):
++            for frame, pth in zip(vi.read_frames(vid, indices), frame_paths):
++                if osp.exists(pth):
++                    continue
++                img = Image.fromarray(frame)
++                w, h = img.size
++                if self.short_side and min(w, h) > self.short_side:
++                    s = self.short_side / min(w, h)
++                    img = img.resize((max(1, round(w * s)), max(1, round(h * s))), Image.BICUBIC)
++                img.save(pth, quality=85)
++        return frame_paths
++
++    # ---------------------------------------------------------------- prompt
++    @staticmethod
++    def _candidates(line):
++        candidates = line['candidates']
++        if isinstance(candidates, str):
++            candidates = ast.literal_eval(candidates)
++        return [str(c) for c in candidates]
++
++    def build_prompt(self, line, video_llm=False, **kwargs):
++        if isinstance(line, int):
++            assert line < len(self)
++            line = self.data.iloc[line]
++        options = vi.render_options(self._candidates(line))
++        message = []
++        if self.blind:
++            intro = vi.INTRO_BLIND
++        elif video_llm:
++            message.append(dict(type='video', value=self._video_file(line)))
++            intro = vi.INTRO_VIDEO
++        else:
++            frames = self.save_video_frames(line)
++            message.extend(dict(type='image', value=frame) for frame in frames)
++            intro = vi.INTRO_FRAMES.format(n=len(frames))
++        message.append(dict(type='text', value=vi.PROMPT.format(intro=intro, q=line['question'], opts=options)))
++        return message
++
++    # -------------------------------------------------------------- evaluate
++    def evaluate(self, eval_file, **judge_kwargs):
++        data = load(eval_file)
++        if isinstance(data, list):
++            data = pd.DataFrame(data)
++        letters, scores = [], []
++        for _, row in data.iterrows():
++            prediction = row.get('prediction', '')
++            prediction = '' if pd.isna(prediction) else str(prediction)
++            options = self._candidates(row)
++            letters.append(vi.extract_letter(prediction, options) or '')
++            scores.append(vi.score_reply(prediction, row['answer'], options))
++        data['extracted'] = letters
++        data['score'] = scores
++
++        detail_file = get_intermediate_file_path(eval_file, '_judge', 'xlsx')
++        score_file = get_intermediate_file_path(eval_file, '_score', 'json')
++        dump(data, detail_file)
++
++        # blind: several rows (option permutations) per item, averaged per item first
++        per_item = data.groupby('item_id').agg(score=('score', 'mean'), group=('capability_group', 'first'))
++        rating = {'Overall': round(float(per_item['score'].mean()) * 100, 2)}
++        for key, label in vi.GROUPS:
++            part = per_item[per_item['group'] == key]
++            if len(part):  # a slice (`limit`) may hold no item of a group
++                rating[label] = round(float(part['score'].mean()) * 100, 2)
++        rating['Items'] = int(len(per_item))
++        rating['Replies'] = int(len(data))
++        rating['Replies without an option'] = int(sum(1 for x in letters if not x))
++        dump(rating, score_file)
++        return rating
++
++    @classmethod
++    def report_primary_metric(cls, metrics):
++        if isinstance(metrics, dict) and 'Overall' in metrics:
++            return {'Overall': metrics['Overall']}
++        return {}
+-- 
+2.43.0
+

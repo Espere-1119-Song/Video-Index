@@ -1,0 +1,113 @@
+diff --git a/tests/fixtures/predefined_video_shortcuts_manifest.json b/tests/fixtures/predefined_video_shortcuts_manifest.json
+index 5acebc5..7c16b95 100644
+--- a/tests/fixtures/predefined_video_shortcuts_manifest.json
++++ b/tests/fixtures/predefined_video_shortcuts_manifest.json
+@@ -2396,5 +2396,58 @@
+     "dataset_alias_name": "revsi_all_frame",
+     "dataset_class_name": "ReVSI",
+     "dataset_name": "ReVSI"
++  },
++  "Video-Index_1fps": {
++    "build_config": {
++      "class": "VideoIndex",
++      "dataset": "Video-Index",
++      "fps": 1.0,
++      "max_frames": 512
++    },
++    "dataset_alias_name": "Video-Index_1fps",
++    "dataset_class_name": "VideoIndex",
++    "dataset_name": "Video-Index"
++  },
++  "Video-Index_8frame": {
++    "build_config": {
++      "class": "VideoIndex",
++      "dataset": "Video-Index",
++      "fps": -1,
++      "nframe": 8
++    },
++    "dataset_alias_name": "Video-Index_8frame",
++    "dataset_class_name": "VideoIndex",
++    "dataset_name": "Video-Index"
++  },
++  "Video-Index_32frame": {
++    "build_config": {
++      "class": "VideoIndex",
++      "dataset": "Video-Index",
++      "fps": -1,
++      "nframe": 32
++    },
++    "dataset_alias_name": "Video-Index_32frame",
++    "dataset_class_name": "VideoIndex",
++    "dataset_name": "Video-Index"
++  },
++  "Video-Index_64frame": {
++    "build_config": {
++      "class": "VideoIndex",
++      "dataset": "Video-Index",
++      "fps": -1,
++      "nframe": 64
++    },
++    "dataset_alias_name": "Video-Index_64frame",
++    "dataset_class_name": "VideoIndex",
++    "dataset_name": "Video-Index"
++  },
++  "Video-Index_Blind": {
++    "build_config": {
++      "class": "VideoIndex",
++      "dataset": "Video-Index_Blind"
++    },
++    "dataset_alias_name": "Video-Index_Blind",
++    "dataset_class_name": "VideoIndex",
++    "dataset_name": "Video-Index_Blind"
+   }
+ }
+diff --git a/vlmeval/dataset/__init__.py b/vlmeval/dataset/__init__.py
+index f54c8e6..c5ef881 100644
+--- a/vlmeval/dataset/__init__.py
++++ b/vlmeval/dataset/__init__.py
+@@ -160,6 +160,7 @@ from .vdc import VDC
+ from .video_concat_dataset import ConcatVideoDataset
+ from .video_eval_pro import VideoEvalPro_MCQ, VideoEvalPro_OpenEnded
+ from .video_holmes import Video_Holmes
++from .video_index import VideoIndex
+ from .video_mmlu import Video_MMLU_CAP, Video_MMLU_QA
+ from .videomme import VideoMME
+ from .videommev2 import VideoMMEv2
+@@ -351,7 +352,8 @@ VIDEO_DATASET = [
+     Video_MMLU_CAP, Video_MMLU_QA,
+     Video_Holmes, VCRBench, CGAVCounting,
+     EgoExoBench_MCQ, DREAM, VideoTT, VideoMMMU, MVUEval, OMTGBench, V2PBench, AVSpeakerBench,
+-    VideoMMEv2, ReVSI, SISBench, VideoEvalPro_MCQ, VideoEvalPro_OpenEnded, VRBenchDataset, FavorBench
++    VideoMMEv2, ReVSI, SISBench, VideoEvalPro_MCQ, VideoEvalPro_OpenEnded, VRBenchDataset, FavorBench,
++    VideoIndex
+ ]
+ 
+ # add by EASI team
+diff --git a/vlmeval/dataset/video_dataset_config.py b/vlmeval/dataset/video_dataset_config.py
+index 90a5031..3e5e6ae 100644
+--- a/vlmeval/dataset/video_dataset_config.py
++++ b/vlmeval/dataset/video_dataset_config.py
+@@ -436,6 +436,14 @@ vrbench_dataset = {
+     'VRBench_64frame': _video_spec(VRBenchDataset, dataset='VRBench', nframe=64),
+ }
+ 
++video_index_dataset = {
++    'Video-Index_1fps': _video_spec(VideoIndex, dataset='Video-Index', fps=1.0, max_frames=512),
++    'Video-Index_8frame': _video_spec(VideoIndex, dataset='Video-Index', nframe=8, fps=-1),
++    'Video-Index_32frame': _video_spec(VideoIndex, dataset='Video-Index', nframe=32, fps=-1),
++    'Video-Index_64frame': _video_spec(VideoIndex, dataset='Video-Index', nframe=64, fps=-1),
++    'Video-Index_Blind': _video_spec(VideoIndex, dataset='Video-Index_Blind'),
++}
++
+ favor_bench_dataset = {
+     'FAVOR-Bench_8frame': _video_spec(FavorBench, dataset='FAVOR-Bench', nframe=8, fps=-1),
+     'FAVOR-Bench_16frame': _video_spec(FavorBench, dataset='FAVOR-Bench', nframe=16, fps=-1),
+@@ -452,7 +460,7 @@ dataset_groups = [
+     megabench_dataset, qbench_video_dataset, moviechat1k_dataset, vdc_dataset, video_holmes_dataset, vcrbench_dataset,
+     cg_av_counting_dataset, video_mmlu_dataset, egoexobench_dataset, dream_1k_dataset, video_tt_dataset,
+     video_vsi_dataset, mvu_eval_dataset, omtg_dataset, v2pbench_dataset, av_speakerbench_dataset,
+-    favor_bench_dataset
++    favor_bench_dataset, video_index_dataset
+ ]
+ 
+ # add by EASI team

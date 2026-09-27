@@ -1,0 +1,14 @@
+# CG-Bench: options as a list, the gold as a letter, long videos inside zip chunks (fetched member by member).
+name: CG-Bench
+source:
+  annotations: {kind: hf, repo: CG-Bench/CG-Bench, include: ["cgbench.json"]}
+  videos: {kind: hf, repo: CG-Bench/CG-Bench, include: ["video_chunk_*.zip"]}   # clue_video_chunk_* hold clue clips
+files: ["cgbench.json"]
+fields:
+  question: question
+  options: choices
+  answer: right_answer
+  subtask: sub_category
+  video: "{video_uid}.mp4"
+answer_type: letter
+meta: {year: 2025, citation_key: chen2025cgbench, licence: unknown, capability_group: perception}

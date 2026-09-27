@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import requests
 
-from .base import ChatModel, ContextLimitError, ModelError, Reply, CONTEXT_PATTERNS
+from .base import ChatModel, Reply, check_status
 
 
 class Gemini(ChatModel):
@@ -24,11 +24,7 @@ class Gemini(ChatModel):
         url = f"{(spec.base_url or self.URL).rstrip('/')}/models/{spec.model}:generateContent"
         r = requests.post(url, json=body, timeout=spec.timeout,
                           headers={"x-goog-api-key": spec.api_key(), "Content-Type": "application/json"})
-        if r.status_code in (400, 413):
-            if any(p in r.text.lower() for p in CONTEXT_PATTERNS):
-                raise ContextLimitError(r.text[:300])
-            raise ModelError(f"{spec.name}: HTTP {r.status_code}: {r.text[:300]}")
-        r.raise_for_status()
+        check_status(spec.name, r)
         d = r.json()
         cand = (d.get("candidates") or [{}])[0]
         # thinking models flag some parts as thoughts: skip them, join the rest

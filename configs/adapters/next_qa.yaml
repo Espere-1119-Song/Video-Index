@@ -1,0 +1,14 @@
+# NExT-QA, multiple-choice split: five option columns a0..a4, the gold as a 0-based index.
+name: NExT-QA
+source:
+  annotations: {kind: hf, repo: lmms-eval/NExTQA}
+  videos: {kind: hf, repo: lmms-eval/NExTQA}
+files: ["MC/*"]
+fields:
+  question: question
+  option_fields: [a0, a1, a2, a3, a4]
+  answer: answer
+  subtask: type
+  video: video
+answer_type: index0
+meta: {year: 2021, citation_key: xiao2021nextqa, licence: unknown, capability_group: temporal}

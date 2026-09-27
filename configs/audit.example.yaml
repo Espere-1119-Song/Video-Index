@@ -1,0 +1,80 @@
+# Run configuration of `vi-audit` (copy to configs/audit.yaml). Every value below is the value of the study.
+work_dir: work                       # workspace (docs/DESIGN.md)
+models_file: configs/models.yaml     # model roles; keys are read from environment variables, never from this file
+seed: 42
+workers: 8                           # parallel model requests
+video_workers: 4                     # parallel ffmpeg processes
+
+# Benchmarks. Leave the list out to run every benchmark with a file in <work_dir>/items/ or <work_dir>/samples/.
+# question_format (MCQ | mixed | open) and num_options (declared option count, e.g. 4 or "4 or 5") are used by the
+# chance and screen stages; text_heavy keeps the short side at 720 for videos longer than 1,800 s; video_root is the
+# directory that the video_ref paths of the items are relative to. benchmarks_file names a CSV with the same columns.
+benchmarks:
+  - name: MyBenchmark
+    question_format: MCQ
+    num_options: 4
+    text_heavy: false
+    video_root: data/MyBenchmark/videos
+# benchmarks_file: configs/benchmarks.csv
+# video_root: data/videos            # default for benchmarks without their own video_root
+
+# sample
+sample_n: 300                        # items per benchmark, stratified by subtask; all items when fewer
+sample_min_per_stratum: 10           # smallest allocation of a subtask
+resample: false                      # true draws a sample again when one exists
+
+# videos
+normalize:
+  max_fps: 2.0                       # frame rate = min(max_fps, max_frames / duration)
+  max_frames: 1024
+  short_side: 720
+  short_side_long: 480               # videos longer than long_s, unless the benchmark is text-heavy
+  long_s: 1800
+encoders: [libx265, libx264]         # the second is used when the first is not available
+ffmpeg: ffmpeg
+ffprobe: ffprobe
+
+# screen
+duplicate_cos: 0.90                  # cosine between question embeddings of two items on the same video
+embedding_model: BAAI/bge-large-en-v1.5
+embedding_batch: 64
+# embedding_device: cuda
+
+# prompts
+letter_options: true                 # write "A. ", "B. ", ... in front of options stored without letter prefixes;
+                                     # false sends the options field as stored
+
+# frames
+reference_frames: 32                 # reference, shuffle, window, permutation audit, captions
+reference_long_frames: 128           # reference_128
+frame_long_side: 768                 # reference role: long side of every frame
+audit_attacker_short_side: null      # attacker role: null = the stored resolution
+attacker_token_budget: null          # attacker role: visual-token budget of the server (the study: 58000 for a
+attacker_patch: 32                   #   65,536-token context, 32-pixel patches); frames are downscaled to fit
+rescreen_all: false                  # true runs reference_128 on every benchmark, not only on those near chance
+
+# roles per condition
+blind_roles: [text_attacker]
+options_only_roles: [text_attacker]
+single_frame_roles: [reference, attacker]
+reference_roles: [reference, attacker]     # the attacker at 32 frames is the second reference
+order_roles: [reference, attacker]         # shuffle and window
+frame_level_roles: [reference]             # single-frame runs that enter the frame level
+
+# option-permutation audit
+permutations: 8                      # plus the original order
+permutation_input: frames            # frames (32 frames + question + permuted options) | options_only
+
+# learned attacker of the pool level
+pool_attack_mode: prequential        # prequential (online, 50 random orders) | five_fold
+pool_attack_permutations: 50
+
+# captions
+caption_modes: [frames]              # frames (32 one-sentence captions, enters the frame level) | video (reported)
+frame_caption_max_tokens: 128
+video_caption_max_tokens: 1024
+caption_short_side: null             # null = the stored resolution
+
+# levels
+delta: 0.05                          # tolerance; 0.03 and 0.08 are reported next to it
+min_items: 30                        # smallest number of scored items for a reference run or an attacker

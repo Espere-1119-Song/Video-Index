@@ -2,7 +2,7 @@
 ``configs/models.example.yaml`` for the configuration."""
 from __future__ import annotations
 
-from .base import ChatModel, ContextLimitError, ModelError, ModelSpec, RefusalError, Reply, encode_image
+from .base import ChatModel, ContextLimitError, ModelError, ModelSpec, RefusalError, Reply, RequestError, encode_image
 
 PROVIDERS: dict[str, str] = {
     "openai_compatible": "video_index.models.openai_compat:OpenAICompatible",
@@ -35,5 +35,5 @@ def build_model(spec: ModelSpec | dict) -> ChatModel:
     return getattr(importlib.import_module(mod), cls)(spec)
 
 
-__all__ = ["ChatModel", "ContextLimitError", "ModelError", "ModelSpec", "RefusalError", "Reply", "encode_image",
+__all__ = ["ChatModel", "ContextLimitError", "ModelError", "ModelSpec", "RefusalError", "Reply", "RequestError", "encode_image",
            "build_model", "register_provider", "PROVIDERS"]

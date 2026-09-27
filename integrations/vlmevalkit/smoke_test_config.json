@@ -1,0 +1,28 @@
+{
+    "model": {
+        "gemini-2.5-flash-lite": {
+            "class": "Gemini",
+            "model": "gemini-2.5-flash-lite",
+            "temperature": 0,
+            "max_tokens": 16,
+            "retry": 5,
+            "verbose": false
+        }
+    },
+    "data": {
+        "Video-Index_8frame_slice": {
+            "class": "VideoIndex",
+            "dataset": "Video-Index",
+            "nframe": 8,
+            "fps": -1,
+            "limit": 12,
+            "offset": 624
+        },
+        "Video-Index_Blind_slice": {
+            "class": "VideoIndex",
+            "dataset": "Video-Index_Blind",
+            "limit": 2,
+            "offset": 624
+        }
+    }
+}

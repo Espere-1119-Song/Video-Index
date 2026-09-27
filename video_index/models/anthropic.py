@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import requests
 
-from .base import ChatModel, ContextLimitError, ModelError, RefusalError, Reply, CONTEXT_PATTERNS
+from .base import ChatModel, RefusalError, Reply, check_status
 
 
 class Anthropic(ChatModel):
@@ -21,11 +21,7 @@ class Anthropic(ChatModel):
         body.update(spec.extra)
         r = requests.post(spec.base_url or self.URL, json=body, timeout=spec.timeout,
                           headers={"x-api-key": spec.api_key(), "anthropic-version": "2023-06-01", "content-type": "application/json"})
-        if r.status_code in (400, 413):
-            if any(p in r.text.lower() for p in CONTEXT_PATTERNS):
-                raise ContextLimitError(r.text[:300])
-            raise ModelError(f"{spec.name}: HTTP {r.status_code}: {r.text[:300]}")
-        r.raise_for_status()
+        check_status(spec.name, r)
         d = r.json()
         text = "".join(b.get("text", "") for b in d.get("content", []) if b.get("type") == "text").strip()
         if d.get("stop_reason") == "refusal":

@@ -1,0 +1,19 @@
+# PLM-VideoBench, FGQA split: options as a dict (option_0, option_1), the gold as a 0-based index, nested metadata.
+# The segments are windows of YouTube videos ("<id>|<start>-<end>"); the repository does not host them, so the
+# video source is a custom kind: register a fetcher for it (docs/onboard.md, "Videos that are not redistributed").
+# Rows from licensed sources (Ego4D, Ego-Exo4D) are left out.
+name: PLM-VideoBench
+source:
+  annotations: {kind: hf, repo: facebook/PLM-VideoBench, include: ["fgqa/plm_fgqa_test.jsonl"]}
+  videos: {kind: youtube, target: PLM-VideoBench}
+files: ["fgqa/plm_fgqa_test.jsonl"]
+fields:
+  question: question
+  options: options
+  answer: answer_index
+  subtask: metadata.question_type
+  video: "{metadata.source_video_id}|{metadata.source_start_time|sec}-{metadata.source_end_time|sec}"
+answer_type: index0
+filters:
+  - {field: metadata.source_dataset, in: [ht100m, coin, youcook2, crosstask]}
+meta: {year: 2025, citation_key: cho2025perceptionlm, licence: unknown, capability_group: perception}

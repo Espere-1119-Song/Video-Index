@@ -1,0 +1,14 @@
+# LongVideoBench: only the validation file ships answers; options in `candidates`, the gold as a 0-based index.
+name: LongVideoBench
+source:
+  annotations: {kind: hf, repo: longvideobench/LongVideoBench, include: ["lvb_val.json"]}
+  videos: {kind: hf, repo: longvideobench/LongVideoBench}
+files: ["lvb_val.json"]
+fields:
+  question: question
+  options: candidates
+  answer: correct_choice
+  subtask: question_category
+  video: video_path
+answer_type: index0
+meta: {year: 2024, citation_key: wu2024longvideobench, licence: unknown, capability_group: reasoning_knowledge}

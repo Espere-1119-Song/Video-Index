@@ -1,0 +1,14 @@
+# Lemonade: the options are a Python-list string in a column that detection does not know (`Answers`);
+# the video name is built from the clip id.
+name: Lemonade
+source:
+  annotations: {kind: hf, repo: amathislab/LEMONADE}
+  videos: {kind: hf, repo: amathislab/LEMONADE}
+fields:
+  question: Question
+  options: Answers
+  answer: "Correct Answer"
+  subtask: Category
+  video: "{Clip}_hololens.mp4"
+answer_type: letter
+meta: {year: 2025, citation_key: bonnetto2025lemonade, licence: unknown, capability_group: perception}

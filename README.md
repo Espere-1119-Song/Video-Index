@@ -1,10 +1,22 @@
-# Video-Index
+<h1 align="center">Video-Index</h1>
+
+<p align="center">
+  <a href="https://www.enxinsong.com/blog/video-index/"><img alt="Blog" src="https://img.shields.io/badge/Blog-Video--Index-4285F4?style=for-the-badge"></a>
+  <a href="https://huggingface.co/datasets/Video-Index/Video-Index"><img alt="Hugging Face dataset" src="https://img.shields.io/badge/%F0%9F%A4%97%20Dataset-Video--Index-F4B400?style=for-the-badge"></a>
+  <img alt="Paper: link to be added" src="https://img.shields.io/badge/Paper-coming%20soon-9AA0A6?style=for-the-badge">
+  <a href="LICENSE"><img alt="Code licence: Apache-2.0" src="https://img.shields.io/badge/Code-Apache--2.0-0F9D58?style=for-the-badge"></a>
+</p>
+
+<p align="center">
+  <img src="assets/figure1.png" alt="Video-Index: the 115 audited video benchmarks as tiles sized by their items, in four capability groups" width="100%">
+  <br>
+  <em>Video-Index. We sample 840 problems from the 505,518 in the 115 video benchmarks.</em>
+</p>
 
 Code for auditing video benchmarks with the **attack pyramid** and for evaluating models on **Video-Index**,
-an 840-item benchmark composed from 76 public video benchmarks.
-
-- Dataset: [`Video-Index/Video-Index`](https://huggingface.co/datasets/Video-Index/Video-Index)
-- Paper: link to be added
+an 840-item benchmark composed from 76 public video benchmarks. The items and videos are on
+[Hugging Face](https://huggingface.co/datasets/Video-Index/Video-Index), and the
+[blog post](https://www.enxinsong.com/blog/video-index/) walks through the findings.
 
 The repository holds three pipelines that share one library.
 
@@ -103,6 +115,7 @@ video_index/
   evaluate/      Video-Index evaluation
 integrations/    VLMEvalKit and lmms-eval files, validation reports
 configs/         example configurations and adapter specifications
+assets/          Figure 1 of the paper
 docs/            guides and design notes
 tests/
 ```

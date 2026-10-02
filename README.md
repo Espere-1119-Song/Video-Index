@@ -3,7 +3,7 @@
 <p align="center">
   <a href="https://www.enxinsong.com/blog/video-index/"><img alt="Blog" src="https://img.shields.io/badge/Blog-Video--Index-4285F4?style=for-the-badge"></a>
   <a href="https://huggingface.co/datasets/Video-Index/Video-Index"><img alt="Hugging Face dataset" src="https://img.shields.io/badge/%F0%9F%A4%97%20Dataset-Video--Index-F4B400?style=for-the-badge"></a>
-  <img alt="Paper: link to be added" src="https://img.shields.io/badge/Paper-coming%20soon-9AA0A6?style=for-the-badge">
+  <a href="https://arxiv.org/abs/2610.00960"><img alt="arXiv 2610.00960" src="https://img.shields.io/badge/arXiv-2610.00960-DB4437?style=for-the-badge"></a>
   <a href="LICENSE"><img alt="Code licence: Apache-2.0" src="https://img.shields.io/badge/Code-Apache--2.0-0F9D58?style=for-the-badge"></a>
 </p>
 
@@ -134,4 +134,11 @@ keep the licences of those benchmarks; see the dataset card.
 
 ## Citation
 
-To be added with the paper.
+```bibtex
+@article{song2026videoindex,
+  title   = {Video-Index: A Curated Meta-Benchmark for Video Understanding},
+  author  = {Song, Enxin and Xu, Yinuo and Yang, Shusheng and Chai, Wenhao and Gu, Jiatao},
+  journal = {arXiv preprint arXiv:2610.00960},
+  year    = {2026}
+}
+```

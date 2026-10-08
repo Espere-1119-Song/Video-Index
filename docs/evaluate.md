@@ -241,5 +241,5 @@ Reports and scripts: `integrations/validation/`.
 ## 10. Tests
 
 ```bash
-pytest tests/test_evaluate_protocol.py tests/test_evaluate_run.py
+pytest tests/test_evaluate_protocol.py tests/test_evaluate_run.py tests/test_data.py
 ```

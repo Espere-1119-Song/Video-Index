@@ -6,6 +6,6 @@ configs/models.yaml
 configs/*.local.yaml
 work/
 runs/
-data/
+/data/
 *.mp4
 .DS_Store

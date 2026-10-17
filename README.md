@@ -18,6 +18,10 @@ an 840-item benchmark composed from 76 public video benchmarks. The items and vi
 [Hugging Face](https://huggingface.co/datasets/Video-Index/Video-Index), and the
 [blog post](https://www.enxinsong.com/blog/video-index/) walks through the findings.
 
+**Video-Index v1.1** is a harder subset for agents: 150 questions, each with its original video and audio. The
+questions and videos are on [Hugging Face](https://huggingface.co/datasets/Video-Index/Video-Index-v1-1); how it was
+built and the scores of 21 agents are in [v1.1/](v1.1/README.md).
+
 The repository holds three pipelines that share one library.
 
 | Pipeline | Command | What it does | Guide |

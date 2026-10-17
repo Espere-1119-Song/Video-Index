@@ -1,0 +1,22 @@
+model,harness,harness_version,reasoning_effort,accuracy,correct,items,no_answer,accuracy_234,cost_per_item_usd_low,cost_per_item_usd_high,cost_basis
+claude-opus-5-5,Claude Code,2.1.300,max,46.7,70,150,14,65.8,1.685,1.685,reported by Claude Code
+claude-opus-5,Claude Code,2.1.300,max,44.7,67,150,1,54.7,2.524,2.524,reported by Claude Code
+gemini-4-argon,Gemini CLI,0.57.0,CLI default,40.0,60,150,2,61.5,0.171,0.575,tokens x proxy list price; low assumes cached input at 10%
+claude-sonnet-5-5,Claude Code,2.1.300,max,36.0,54,150,18,50.0,1.516,1.516,reported by Claude Code
+gemini-3.8-flash,Gemini CLI,0.64.0,CLI default,36.0,54,150,4,50.0,0.313,1.41,tokens x proxy list price; low assumes cached input at 10%
+gpt-6-astra,Codex CLI,0.154.0,max,35.3,53,150,13,58.5,0.412,1.611,tokens x proxy list price; low assumes cached input at 10%
+gpt-5.6-sol,Codex CLI,0.154.0,max,29.3,44,150,15,40.6,0.55,3.012,tokens x proxy list price; low assumes cached input at 10%
+gemini-3.6-flash,Gemini CLI,0.64.0,CLI default,28.7,43,150,3,35.9,0.147,0.615,tokens x proxy list price; low assumes cached input at 10%
+claude-haiku-5-5,Claude Code,2.1.300,max,27.3,41,150,1,38.9,0.262,0.262,reported by Claude Code
+claude-opus-4-7,Claude Code,2.1.300,max,26.0,39,150,0,34.6,2.668,2.668,reported by Claude Code
+claude-opus-4-8,Claude Code,2.1.300,max,26.0,39,150,1,35.9,1.383,1.383,reported by Claude Code
+claude-sonnet-5,Claude Code,2.1.300,max,26.0,39,150,2,29.9,1.48,1.48,reported by Claude Code
+claude-opus-4-6,Claude Code,2.1.300,max,22.0,33,150,2,29.1,1.234,1.234,reported by Claude Code
+gemini-3-flash-preview,Gemini CLI,0.57.0,CLI default,21.3,32,150,8,26.1,0.203,0.729,tokens x proxy list price; low assumes cached input at 10%
+gpt-5.6-terra,Codex CLI,0.154.0,max,20.7,31,150,15,34.2,0.446,2.545,tokens x proxy list price; low assumes cached input at 10%
+gemini-3.1-pro-preview,Gemini CLI,0.57.0,CLI default,20.0,30,150,56,24.8,0.424,1.477,tokens x proxy list price; low assumes cached input at 10%
+gpt-5.6-luna,Codex CLI,0.154.0,max,20.0,30,150,15,28.2,0.045,0.255,tokens x proxy list price; low assumes cached input at 10%
+claude-opus-4-5,Claude Code,2.1.300,max,18.0,27,150,1,24.8,0.773,0.773,reported by Claude Code
+claude-sonnet-4-6,Claude Code,2.1.300,max,18.0,27,150,4,25.2,1.232,1.232,reported by Claude Code
+gemini-3.5-flash-lite,Gemini CLI,0.57.0,CLI default,14.7,22,150,6,17.1,0.053,0.195,tokens x proxy list price; low assumes cached input at 10%
+claude-haiku-4-5,Claude Code,2.1.300,max,14.0,21,150,8,17.1,0.219,0.219,reported by Claude Code

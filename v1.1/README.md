@@ -2,8 +2,8 @@
 
 Video-Index v1.1 is a harder subset for agents: **150 questions** from the 840 of Video-Index v1.0. Each comes with its
 original source video, including audio. The questions and videos are on Hugging Face at
-[Video-Index/Video-Index-v1-1](https://huggingface.co/datasets/Video-Index/Video-Index-v1-1). This folder holds the
-scores.
+[Video-Index/Video-Index-v1-1](https://huggingface.co/datasets/Video-Index/Video-Index-v1-1), together with the
+text-only traces of all 21 agents. This folder holds the scores.
 
 ## Construction
 

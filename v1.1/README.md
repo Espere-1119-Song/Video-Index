@@ -48,29 +48,33 @@ agents are therefore lower on v1.1 by construction. Cost per question in USD:
 - **Gemini and OpenAI.** Tokens times the proxy list price. The lower bound assumes cached input tokens cost 10% of
   the list price; the upper bound assumes they cost the full price.
 
-| Model | Harness | Accuracy (150) | No answer | Accuracy (234) | Cost per question |
-|---|---|---:|---:|---:|---:|
-| claude-opus-5-5 | Claude Code 2.1.300 | 46.7 | 14 | 65.8 | 1.69 |
-| claude-opus-5 | Claude Code 2.1.300 | 44.7 | 1 | 54.7 | 2.52 |
-| gemini-4-argon | Gemini CLI 0.57.0 | 40.0 | 2 | 61.5 | 0.17–0.57 |
-| claude-sonnet-5-5 | Claude Code 2.1.300 | 36.0 | 18 | 50.0 | 1.52 |
-| gemini-3.8-flash | Gemini CLI 0.64.0 | 36.0 | 4 | 50.0 | 0.31–1.41 |
-| gpt-6-astra | Codex CLI 0.154.0 | 35.3 | 13 | 58.5 | 0.41–1.61 |
-| gpt-5.6-sol | Codex CLI 0.154.0 | 29.3 | 15 | 40.6 | 0.55–3.01 |
-| gemini-3.6-flash | Gemini CLI 0.64.0 | 28.7 | 3 | 35.9 | 0.15–0.61 |
-| claude-haiku-5-5 | Claude Code 2.1.300 | 27.3 | 1 | 38.9 | 0.26 |
-| claude-opus-4-7 | Claude Code 2.1.300 | 26.0 | 0 | 34.6 | 2.67 |
-| claude-opus-4-8 | Claude Code 2.1.300 | 26.0 | 1 | 35.9 | 1.38 |
-| claude-sonnet-5 | Claude Code 2.1.300 | 26.0 | 2 | 29.9 | 1.48 |
-| claude-opus-4-6 | Claude Code 2.1.300 | 22.0 | 2 | 29.1 | 1.23 |
-| gemini-3-flash-preview | Gemini CLI 0.57.0 | 21.3 | 8 | 26.1 | 0.20–0.73 |
-| gpt-5.6-terra | Codex CLI 0.154.0 | 20.7 | 15 | 34.2 | 0.45–2.54 |
-| gemini-3.1-pro-preview | Gemini CLI 0.57.0 | 20.0 | 56 | 24.8 | 0.42–1.48 |
-| gpt-5.6-luna | Codex CLI 0.154.0 | 20.0 | 15 | 28.2 | 0.04–0.26 |
-| claude-opus-4-5 | Claude Code 2.1.300 | 18.0 | 1 | 24.8 | 0.77 |
-| claude-sonnet-4-6 | Claude Code 2.1.300 | 18.0 | 4 | 25.2 | 1.23 |
-| gemini-3.5-flash-lite | Gemini CLI 0.57.0 | 14.7 | 6 | 17.1 | 0.05–0.20 |
-| claude-haiku-4-5 | Claude Code 2.1.300 | 14.0 | 8 | 17.1 | 0.22 |
+Time per question is the mean wall-clock time of one call in minutes, with timeouts counted as 60 minutes. It
+depends on the proxy's latency and on how many calls ran at once (12 per Claude or Gemini model, 8 per OpenAI model),
+so it compares agents only roughly.
+
+| Model | Harness | Accuracy (150) | No answer | Accuracy (234) | Time per question (min) | Cost per question |
+|---|---|---:|---:|---:|---:|---:|
+| claude-opus-5-5 | Claude Code 2.1.300 | 46.7 | 14 | 65.8 | 19.2 | 1.69 |
+| claude-opus-5 | Claude Code 2.1.300 | 44.7 | 1 | 54.7 | 14.0 | 2.52 |
+| gemini-4-argon | Gemini CLI 0.57.0 | 40.0 | 2 | 61.5 | 4.0 | 0.17–0.57 |
+| claude-sonnet-5-5 | Claude Code 2.1.300 | 36.0 | 18 | 50.0 | 22.1 | 1.52 |
+| gemini-3.8-flash | Gemini CLI 0.64.0 | 36.0 | 4 | 50.0 | 10.2 | 0.31–1.41 |
+| gpt-6-astra | Codex CLI 0.154.0 | 35.3 | 13 | 58.5 | 1.8 | 0.41–1.61 |
+| gpt-5.6-sol | Codex CLI 0.154.0 | 29.3 | 15 | 40.6 | 5.2 | 0.55–3.01 |
+| gemini-3.6-flash | Gemini CLI 0.64.0 | 28.7 | 3 | 35.9 | 10.6 | 0.15–0.61 |
+| claude-haiku-5-5 | Claude Code 2.1.300 | 27.3 | 1 | 38.9 | 12.4 | 0.26 |
+| claude-opus-4-7 | Claude Code 2.1.300 | 26.0 | 0 | 34.6 | 8.0 | 2.67 |
+| claude-opus-4-8 | Claude Code 2.1.300 | 26.0 | 1 | 35.9 | 9.1 | 1.38 |
+| claude-sonnet-5 | Claude Code 2.1.300 | 26.0 | 2 | 29.9 | 13.7 | 1.48 |
+| claude-opus-4-6 | Claude Code 2.1.300 | 22.0 | 2 | 29.1 | 10.4 | 1.23 |
+| gemini-3-flash-preview | Gemini CLI 0.57.0 | 21.3 | 8 | 26.1 | 8.0 | 0.20–0.73 |
+| gpt-5.6-terra | Codex CLI 0.154.0 | 20.7 | 15 | 34.2 | 8.0 | 0.45–2.54 |
+| gemini-3.1-pro-preview | Gemini CLI 0.57.0 | 20.0 | 56 | 24.8 | 7.7 | 0.42–1.48 |
+| gpt-5.6-luna | Codex CLI 0.154.0 | 20.0 | 15 | 28.2 | 7.2 | 0.04–0.26 |
+| claude-opus-4-5 | Claude Code 2.1.300 | 18.0 | 1 | 24.8 | 7.2 | 0.77 |
+| claude-sonnet-4-6 | Claude Code 2.1.300 | 18.0 | 4 | 25.2 | 11.6 | 1.23 |
+| gemini-3.5-flash-lite | Gemini CLI 0.57.0 | 14.7 | 6 | 17.1 | 10.0 | 0.05–0.20 |
+| claude-haiku-4-5 | Claude Code 2.1.300 | 14.0 | 8 | 17.1 | 6.8 | 0.22 |
 
 The same numbers are in [scores.csv](scores.csv).
 

@@ -1,22 +1,22 @@
-model,harness,harness_version,reasoning_effort,accuracy,correct,items,no_answer,accuracy_234,seconds_per_item_mean,seconds_per_item_median,cost_per_item_usd_low,cost_per_item_usd_high,cost_basis
-claude-opus-5-5,Claude Code,2.1.300,max,46.7,70,150,14,65.8,1155,778,1.685,1.685,reported by Claude Code
-claude-opus-5,Claude Code,2.1.300,max,44.7,67,150,1,54.7,842,559,2.524,2.524,reported by Claude Code
-gemini-4-argon,Gemini CLI,0.57.0,CLI default,40.0,60,150,2,61.5,240,137,0.171,0.575,tokens x proxy list price; low assumes cached input at 10%
-claude-sonnet-5-5,Claude Code,2.1.300,max,36.0,54,150,18,50.0,1328,777,1.516,1.516,reported by Claude Code
-gemini-3.8-flash,Gemini CLI,0.64.0,CLI default,36.0,54,150,4,50.0,611,462,0.313,1.41,tokens x proxy list price; low assumes cached input at 10%
-gpt-6-astra,Codex CLI,0.154.0,max,35.3,53,150,13,58.5,109,70,0.412,1.611,tokens x proxy list price; low assumes cached input at 10%
-gpt-5.6-sol,Codex CLI,0.154.0,max,29.3,44,150,15,40.6,311,176,0.55,3.012,tokens x proxy list price; low assumes cached input at 10%
-gemini-3.6-flash,Gemini CLI,0.64.0,CLI default,28.7,43,150,3,35.9,634,216,0.147,0.615,tokens x proxy list price; low assumes cached input at 10%
-claude-haiku-5-5,Claude Code,2.1.300,max,27.3,41,150,1,38.9,747,609,0.262,0.262,reported by Claude Code
-claude-opus-4-7,Claude Code,2.1.300,max,26.0,39,150,0,34.6,479,285,2.668,2.668,reported by Claude Code
-claude-opus-4-8,Claude Code,2.1.300,max,26.0,39,150,1,35.9,543,410,1.383,1.383,reported by Claude Code
-claude-sonnet-5,Claude Code,2.1.300,max,26.0,39,150,2,29.9,822,634,1.48,1.48,reported by Claude Code
-claude-opus-4-6,Claude Code,2.1.300,max,22.0,33,150,2,29.1,626,409,1.234,1.234,reported by Claude Code
-gemini-3-flash-preview,Gemini CLI,0.57.0,CLI default,21.3,32,150,8,26.1,478,189,0.203,0.729,tokens x proxy list price; low assumes cached input at 10%
-gpt-5.6-terra,Codex CLI,0.154.0,max,20.7,31,150,15,34.2,478,256,0.446,2.545,tokens x proxy list price; low assumes cached input at 10%
-gemini-3.1-pro-preview,Gemini CLI,0.57.0,CLI default,20.0,30,150,56,24.8,464,315,0.424,1.477,tokens x proxy list price; low assumes cached input at 10%
-gpt-5.6-luna,Codex CLI,0.154.0,max,20.0,30,150,15,28.2,433,208,0.045,0.255,tokens x proxy list price; low assumes cached input at 10%
-claude-opus-4-5,Claude Code,2.1.300,max,18.0,27,150,1,24.8,431,179,0.773,0.773,reported by Claude Code
-claude-sonnet-4-6,Claude Code,2.1.300,max,18.0,27,150,4,25.2,695,524,1.232,1.232,reported by Claude Code
-gemini-3.5-flash-lite,Gemini CLI,0.57.0,CLI default,14.7,22,150,6,17.1,599,179,0.053,0.195,tokens x proxy list price; low assumes cached input at 10%
-claude-haiku-4-5,Claude Code,2.1.300,max,14.0,21,150,8,17.1,408,177,0.219,0.219,reported by Claude Code
+model,harness,harness_version,reasoning_effort,accuracy,correct,items,no_answer,accuracy_227,seconds_per_item_mean,seconds_per_item_median,cost_per_item_usd_low,cost_per_item_usd_high,cost_basis
+claude-opus-5-5,Claude Code,2.1.300,max,47.9,69,144,12,67.0,1132,778,1.715,1.715,reported by Claude Code
+claude-opus-5,Claude Code,2.1.300,max,46.5,67,144,1,56.4,844,559,2.57,2.57,reported by Claude Code
+gemini-4-argon,Gemini CLI,0.57.0,CLI default,41.0,59,144,2,62.6,245,140,0.173,0.585,tokens x proxy list price; low assumes cached input at 10%
+gemini-3.8-flash,Gemini CLI,0.64.0,CLI default,37.5,54,144,4,51.1,620,470,0.316,1.432,tokens x proxy list price; low assumes cached input at 10%
+claude-sonnet-5-5,Claude Code,2.1.300,max,36.8,53,144,18,51.1,1331,777,1.512,1.512,reported by Claude Code
+gpt-6-astra,Codex CLI,0.154.0,max,35.4,51,144,12,59.0,109,70,0.415,1.632,tokens x proxy list price; low assumes cached input at 10%
+gpt-5.6-sol,Codex CLI,0.154.0,max,30.6,44,144,14,41.9,288,173,0.529,2.874,tokens x proxy list price; low assumes cached input at 10%
+gemini-3.6-flash,Gemini CLI,0.64.0,CLI default,29.2,42,144,3,36.6,637,203,0.149,0.623,tokens x proxy list price; low assumes cached input at 10%
+claude-haiku-5-5,Claude Code,2.1.300,max,27.8,40,144,1,39.6,751,609,0.266,0.266,reported by Claude Code
+claude-opus-4-7,Claude Code,2.1.300,max,27.1,39,144,0,35.7,486,298,2.729,2.729,reported by Claude Code
+claude-opus-4-8,Claude Code,2.1.300,max,27.1,39,144,1,37.0,553,420,1.403,1.403,reported by Claude Code
+claude-sonnet-5,Claude Code,2.1.300,max,27.1,39,144,2,30.8,833,679,1.507,1.507,reported by Claude Code
+claude-opus-4-6,Claude Code,2.1.300,max,22.2,32,144,2,29.1,624,407,1.251,1.251,reported by Claude Code
+gemini-3-flash-preview,Gemini CLI,0.57.0,CLI default,22.2,32,144,8,26.9,482,186,0.203,0.732,tokens x proxy list price; low assumes cached input at 10%
+gpt-5.6-terra,Codex CLI,0.154.0,max,21.5,31,144,15,35.2,470,256,0.442,2.537,tokens x proxy list price; low assumes cached input at 10%
+gemini-3.1-pro-preview,Gemini CLI,0.57.0,CLI default,20.8,30,144,53,25.6,470,328,0.425,1.488,tokens x proxy list price; low assumes cached input at 10%
+gpt-5.6-luna,Codex CLI,0.154.0,max,20.8,30,144,15,29.1,435,208,0.046,0.258,tokens x proxy list price; low assumes cached input at 10%
+claude-opus-4-5,Claude Code,2.1.300,max,18.1,26,144,1,24.7,422,171,0.78,0.78,reported by Claude Code
+claude-sonnet-4-6,Claude Code,2.1.300,max,18.1,26,144,4,25.6,712,562,1.25,1.25,reported by Claude Code
+gemini-3.5-flash-lite,Gemini CLI,0.57.0,CLI default,15.3,22,144,6,17.6,599,161,0.053,0.197,tokens x proxy list price; low assumes cached input at 10%
+claude-haiku-4-5,Claude Code,2.1.300,max,14.6,21,144,8,17.6,410,177,0.22,0.22,reported by Claude Code

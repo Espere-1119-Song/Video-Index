@@ -7,9 +7,33 @@
 | Official protocol (1 FPS frames, ≤512, short side 224) | 14.9k | 14.3 | 2.9 | 11.4 | 12.9 | 21.9 | 8.6 | 13.8 |
 | Codec-native video (`target_canvas=128`) | **7.5k** | **14.4** | 2.9 | **11.5** | 17.1 | 18.6 | 11.9 | 10.0 |
 
-With half the visual tokens, the codec input matches the official protocol. Both rows place Mage-VL third
-among the open models of Table 1, after Molmo2-8B (19.0) and InternVL3.5-8B (15.2), and first among
-models of its size (VideoChat3-4B: 9.4).
+With half the visual tokens, the codec input matches the official protocol.
+
+### Ranking
+
+Mage-VL rows added to Table 1 of the [Video-Index blog](https://www.enxinsong.com/blog/video-index/), ranked by
+Video (human volunteers unranked). Mage-VL is 9th overall, 3rd among open models and 1st at its size.
+
+| # | Model | Input | Video | Blind | Gain |
+| --- | --- | --- | --- | --- | --- |
+| 1 | GPT-6-Astra | agent | 79.3 | 18.7 | 60.6 |
+| 2 | Claude Fable 5.1 | agent | 71.5 | 20.7 | 50.8 |
+| 3 | Claude Opus 5 | agent | 70.6 | 24.9 | 45.7 |
+| 4 | Claude Opus 5 | fixed | 56.8 | 21.3 | 35.5 |
+| – | Human volunteers | | 55.0 | 17.5 | 37.5 |
+| 5 | Gemini 3.1 Pro | fixed | 54.7 | 23.9 | 30.8 |
+| 6 | Gemini 3.5 Flash-Lite | fixed | 22.5 | 17.5 | 5.0 |
+| 7 | Molmo2-8B | fixed | 19.0 | 4.8 | 14.2 |
+| 8 | InternVL3.5-8B | fixed | 15.2 | 4.4 | 10.8 |
+| **9** | **Mage-VL-4B, codec (7.5k tokens)** | native video | **14.4** | 2.9 | **11.5** |
+| **9** | **Mage-VL-4B, official (14.9k tokens)** | fixed | **14.3** | 2.9 | **11.4** |
+| 10 | LLaVA-OneVision-2-8B | fixed | 14.2 | 1.8 | 12.4 |
+| 11 | InternVideo2.5-8B | fixed | 12.4 | 7.5 | 4.9 |
+| 11 | VideoLLaMA3-7B | fixed | 12.4 | 5.2 | 7.1 |
+| 11 | Video-XL-2 | fixed | 12.4 | 7.3 | 5.1 |
+| 14 | Cambrian-S-7B | fixed | 11.3 | 5.3 | 6.0 |
+| 15 | Qwen3-VL-8B | fixed | 9.5 | 1.4 | 8.1 |
+| 16 | VideoChat3-4B | fixed | 9.4 | 3.8 | 5.7 |
 
 * **Official protocol.** `vi-eval run` unchanged. `mage_vl.py` passes the frames before the text and labels
   them with the real times `vi-eval` provides (Mage-VL's processor otherwise labels pre-decoded frames 0, 1,
